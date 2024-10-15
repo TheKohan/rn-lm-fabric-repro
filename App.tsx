@@ -1,118 +1,143 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
+import 'react-native-gesture-handler';
+import {View, StyleSheet, Text, ScrollView, Button} from 'react-native';
+import {useMemo} from 'react';
+import {MarkdownTextInput} from '@expensify/react-native-live-markdown';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
+type MarkdownExample = {
   title: string;
-}>;
+  content: string;
+};
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const MARKDOWN_EXAMPLES: MarkdownExample[] = [
+  {
+    title: 'Bold Text',
+    content: 'Hello, *world*!',
+  },
+  {
+    title: 'Emoji',
+    content: '😀🍕🍔',
+  },
+  {
+    title: 'Url',
+    content: 'https://expensify.com',
+  },
+  {
+    title: 'Header',
+    content: '# header1',
+  },
+  {
+    title: 'Blockquote',
+    content: '> blockquote',
+  },
+  {
+    title: 'Inline Code',
+    content: '`inline code`',
+  },
+  {
+    title: 'Code Block',
+    content: '```\ncodeblock\n```',
+  },
+  {
+    title: 'Mentions',
+    content: '@here',
+  },
+  {
+    title: 'Email Mentions',
+    content: '@someone@swmansion.com',
+  },
+  {
+    title: 'Hashtag',
+    content: '#mention-report',
+  },
+  {
+    title: 'Image',
+    content: '![demo image](https://picsum.photos/id/1067/200/300)',
+  },
+  {
+    title: 'Autocorrect',
+    content: 'trailing space ',
+  },
+];
+
+const Stack1 = createStackNavigator();
+const Stack2 = createNativeStackNavigator();
+
+export default function App() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Router />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function Router() {
+  return (
+    <Stack1.Navigator initialRouteName="Home">
+      <Stack1.Screen name="Home" component={Example} />
+      <Stack1.Screen name="Home2" component={Example} />
+    </Stack1.Navigator>
+  );
+}
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+function Example() {
+  const {bottom} = useSafeAreaInsets();
+  const navigation = useNavigation();
+
+  const style = useMemo(() => ({paddingBottom: bottom}), [bottom]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <ScrollView>
+      <Button onPress={() => navigation.navigate('Home2')} title="Test" />
+      <View style={[styles.container, style]}>
+        {MARKDOWN_EXAMPLES.map(({title, content}) => {
+          return (
+            <View style={styles.exampleWrapper} key={title}>
+              <Text style={styles.header}>{title}</Text>
+              <MarkdownTextInput
+                multiline
+                autoCapitalize="none"
+                style={styles.input}
+                placeholder="123"
+                defaultValue={content}
+              />
+            </View>
+          );
+        })}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    paddingTop: 20,
+    gap: 20,
+    alignItems: 'center',
   },
-  sectionTitle: {
+  exampleWrapper: {
+    gap: 8,
+  },
+  header: {
     fontSize: 24,
     fontWeight: '600',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  input: {
+    fontSize: 20,
+    width: 350,
+    padding: 5,
+    borderColor: 'gray',
+    borderWidth: 1,
+    textAlignVertical: 'top',
+    backgroundColor: 'rgb(253,253,253)',
   },
 });
-
-export default App;
