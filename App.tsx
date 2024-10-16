@@ -1,22 +1,80 @@
-import React from 'react';
-import 'react-native-gesture-handler';
-import {View, StyleSheet, Text, ScrollView, Button} from 'react-native';
-import {useMemo} from 'react';
-import {MarkdownTextInput} from '@expensify/react-native-live-markdown';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import * as React from 'react';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
+
+import {NavigationContainer} from '@react-navigation/native';
+
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createStackNavigator} from '@react-navigation/stack';
+import {MarkdownTextInput} from '@expensify/react-native-live-markdown';
 
-type MarkdownExample = {
-  title: string;
-  content: string;
-};
+const Stack1 = createStackNavigator();
+const Stack2 = createNativeStackNavigator();
 
-const MARKDOWN_EXAMPLES: MarkdownExample[] = [
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Router />
+    </NavigationContainer>
+  );
+}
+
+function Router() {
+  return (
+    <Stack2.Navigator initialRouteName="Home">
+      <Stack2.Screen name="Home" component={MarkdownPreviewExample} />
+    </Stack2.Navigator>
+  );
+}
+
+export function MarkdownPreviewExample() {
+  return (
+    <ScrollView>
+      <View style={[styles.container]}>
+        {MARKDOWN_EXAMPLES.map(({title, content}) => {
+          return (
+            <View style={styles.exampleWrapper} key={title}>
+              <Text style={styles.header}>{title}</Text>
+              <MarkdownTextInput
+                multiline
+                autoCapitalize="none"
+                style={styles.input}
+                placeholder="123"
+                defaultValue={content}
+              />
+            </View>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: 20,
+    paddingBottom: 50,
+    gap: 20,
+    alignItems: 'center',
+  },
+  exampleWrapper: {
+    gap: 8,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  input: {
+    fontSize: 20,
+    width: 350,
+    padding: 5,
+    borderColor: 'gray',
+    borderWidth: 1,
+    textAlignVertical: 'top',
+    backgroundColor: 'rgb(253,253,253)',
+  },
+});
+
+const MARKDOWN_EXAMPLES = [
   {
     title: 'Bold Text',
     content: 'Hello, *world*!',
@@ -61,83 +119,4 @@ const MARKDOWN_EXAMPLES: MarkdownExample[] = [
     title: 'Image',
     content: '![demo image](https://picsum.photos/id/1067/200/300)',
   },
-  {
-    title: 'Autocorrect',
-    content: 'trailing space ',
-  },
 ];
-
-const Stack1 = createStackNavigator();
-const Stack2 = createNativeStackNavigator();
-
-export default function App() {
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Router />
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
-}
-
-function Router() {
-  return (
-    <Stack1.Navigator initialRouteName="Home">
-      <Stack1.Screen name="Home" component={Example} />
-      <Stack1.Screen name="Home2" component={Example} />
-    </Stack1.Navigator>
-  );
-}
-
-function Example() {
-  const {bottom} = useSafeAreaInsets();
-  const navigation = useNavigation();
-
-  const style = useMemo(() => ({paddingBottom: bottom}), [bottom]);
-
-  return (
-    <ScrollView>
-      <Button onPress={() => navigation.navigate('Home2')} title="Test" />
-      <View style={[styles.container, style]}>
-        {MARKDOWN_EXAMPLES.map(({title, content}) => {
-          return (
-            <View style={styles.exampleWrapper} key={title}>
-              <Text style={styles.header}>{title}</Text>
-              <MarkdownTextInput
-                multiline
-                autoCapitalize="none"
-                style={styles.input}
-                placeholder="123"
-                defaultValue={content}
-              />
-            </View>
-          );
-        })}
-      </View>
-    </ScrollView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 20,
-    gap: 20,
-    alignItems: 'center',
-  },
-  exampleWrapper: {
-    gap: 8,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  input: {
-    fontSize: 20,
-    width: 350,
-    padding: 5,
-    borderColor: 'gray',
-    borderWidth: 1,
-    textAlignVertical: 'top',
-    backgroundColor: 'rgb(253,253,253)',
-  },
-});
